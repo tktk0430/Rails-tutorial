@@ -42,6 +42,11 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "authenticated? do not work with nil remember digest" do
+    assert_not @user.authenticated?("aiueo")
+  end
+ 
+
   test "email validation should reject invalid addresses" do
     invalid_addresses=%w(aaa@com@com abcd@aaaa example abc@ee++aa)
     invalid_addresses.each do |address|
@@ -61,4 +66,5 @@ class UserTest < ActiveSupport::TestCase
     @user.password=@user.password_confirmation=""
     assert_not @user.valid?
   end
+
 end

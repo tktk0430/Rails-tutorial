@@ -37,5 +37,31 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", login_path
     assert_select "a[href=?]", logout_path, count:0
     assert_select "a[href=?]", user_path(@user), count:0
+    delete logout_path #別のウィンドウでのログアウトを想定
+    follow_redirect!
+    assert_select "a[href=?]", login_path
+    assert_select "a[href=?]", logout_path,      count: 0
+    assert_select "a[href=?]", user_path(@user), count: 0
+  end
+
+  test "login with remembering" do
+    log_in_as(@user,remember_me: '1')
+    assert_not_empty cookies['remember_token']
+  end
+
+  test "login without remembering" do
+    log_in_as(@user,remember_me: '1')
+    delete logout_path
+    log_in_as(@user,remember_me: '0')
+    assert_empty cookies['remember_token']
+  end
+
+  test "login with no session" do
+    log_in_as(@user,remember_me: '1')
+    assert is_logged_in?, "Session id is #{session['user_id']}"
+    session[:user_id]=nil
+    assert_not session['user_id'], "Session id is #{session['user_id']}"
+    get root_url #再度ページにアクセスすることでcurrent_userメソッドが働いてsessionが復活するはず
+    assert session['user_id'], "Session id is #{session['user_id']}"
   end
 end
