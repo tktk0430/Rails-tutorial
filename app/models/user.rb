@@ -6,8 +6,10 @@ class User < ApplicationRecord
     uniqueness: {case_sensitive: false}
   has_secure_password
   validates :password,length:{minimum: 6}, allow_nil: true
-
-  attr_accessor :remember_token #remember(=)メソッドをセッターとゲッターにする
+  attr_accessor :remember_token, :activation_token
+  #remember(=)メソッドをセッターとゲッターにする
+  before_save :downcase_email
+  before_create :create_activation_digest
 
   def self.digest(string)
     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
@@ -33,4 +35,14 @@ class User < ApplicationRecord
     return false if self.remember_digest.nil?
     BCrypt::Password.new(self.remember_digest).is_password?(remember_token)
   end
+
+  private
+    def downcase_email
+      self.email=self.email.downcase
+    end
+
+    def create_activation_digest
+      self.activation_token=User.new_token
+      self.activation_digest=User.digest(self.activation_token)
+    end
 end
