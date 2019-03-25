@@ -1,11 +1,11 @@
 class User < ApplicationRecord
-  validates :name, presence: true, length: {maximum: 20}
+  validates :name, presence: true, length: {maximum: 50}
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true, length: {maximum: 200},
     format: {with: VALID_EMAIL_REGEX},
     uniqueness: {case_sensitive: false}
   has_secure_password
-  validates :password,length:{minimum: 6}
+  validates :password,length:{minimum: 6}, allow_nil: true
 
   attr_accessor :remember_token #remember(=)メソッドをセッターとゲッターにする
 

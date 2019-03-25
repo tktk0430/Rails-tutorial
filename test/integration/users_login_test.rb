@@ -60,7 +60,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     log_in_as(@user,remember_me: '1')
     assert is_logged_in?, "Session id is #{session['user_id']}"
     session[:user_id]=nil
-    assert_not session['user_id'], "Session id is #{session['user_id']}"
+    assert_not session["user_id"], "Session id is #{session['user_id']}"
     get root_url #再度ページにアクセスすることでcurrent_userメソッドが働いてsessionが復活するはず
     assert session['user_id'], "Session id is #{session['user_id']}"
   end
