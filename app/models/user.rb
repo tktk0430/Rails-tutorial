@@ -6,7 +6,7 @@ class User < ApplicationRecord
     uniqueness: {case_sensitive: false}
   has_secure_password
   validates :password,length:{minimum: 6}, allow_nil: true
-  attr_accessor :remember_token, :activation_token
+  attr_accessor :remember_token, :activation_token, :reset_token
   #remember(=)メソッドをセッターとゲッターにする
   before_save :downcase_email
   before_create :create_activation_digest
@@ -49,7 +49,17 @@ class User < ApplicationRecord
   end
 
   def send_activation_email
-    UserMailer.account_activation(self).deliver_now
+    UserMailer.account_activation(self).deliver_now #selfはレシーバ
+  end
+
+  def create_reset_digest
+    self.reset_token=User.new_token
+    update_attribute(:reset_digest, User.digest(reset_token))
+    update_attribute(:reset_sent_at, Time.zone.now)
+  end
+
+  def send_password_reset_email
+    UserMailer.password_reset(self).deliver_now #selfはレシーバ
   end
 
   private
@@ -61,4 +71,5 @@ class User < ApplicationRecord
       self.activation_token=User.new_token
       self.activation_digest=User.digest(self.activation_token)
     end
+
 end

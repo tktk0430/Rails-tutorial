@@ -16,12 +16,14 @@ class UserMailerTest < ActionMailer::TestCase
     assert_match CGI.escape(@user.email), mail.body.encoded #@を%40に直すメソッド
   end
 
-  test "password_reset" do
-    mail = UserMailer.password_reset
-    assert_equal "Password reset", mail.subject
-    assert_equal ["to@example.org"], mail.to
+  test "password reset" do
+    @user.reset_token = User.new_token
+    mail = UserMailer.password_reset(@user)
+    assert_equal "Password Reset", mail.subject
+    assert_equal [@user.email], mail.to
     assert_equal ["no_reply@example.com"], mail.from
-    assert_match "Hi", mail.body.encoded
+    assert_match @user.name, mail.body.encoded
+    assert_match @user.reset_token, mail.body.encoded #activation_tokenはユーザーモデルのゲッターメソッド
+    assert_match CGI.escape(@user.email), mail.body.encoded #@を%40に直すメソッド
   end
-
 end
