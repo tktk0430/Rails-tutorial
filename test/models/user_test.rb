@@ -43,7 +43,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "authenticated? do not work with nil remember digest" do
-    assert_not @user.authenticated?("aiueo")
+    assert_not @user.authenticated?(:remember,"aiueo")
   end
  
 
