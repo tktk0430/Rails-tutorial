@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
         redirect_back_or user
       else
         flash[:danger]="account not activated, please find email"
-        redirect_to root
+        redirect_to root_path
       end
     else
       flash.now[:danger] = 'Invalid email/password combination'
