@@ -1,5 +1,21 @@
 class User < ApplicationRecord
   has_many :microposts, dependent: :destroy
+  has_many :active_relationships,
+    class_name: 'Relationship', #このままだとRalationshipクラスのuser_idを探しに行く
+    foreign_key: 'follower_id',#follower_idを探して自分のuser_idとひもづけてね
+    dependent: :destroy
+  has_many :following,
+    through: 'active_relationships',
+    source: 'followed'
+  #=>user.active_relationships.map(&:followed)
+  has_many :passive_relationships,
+    class_name: 'Relationship',
+    foreign_key: 'followed_id',
+    dependent: :destroy
+  has_many :followers,
+    through: 'passive_relationships',
+    source: 'follower'
+
   has_secure_password
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   
@@ -68,9 +84,33 @@ class User < ApplicationRecord
   end
 
   def feed
-    Micropost.where("user_id = ?",self.id)
+    # Micropost.where("user_id IN (:following_ids) OR user_id = :user_id",
+    #   following_ids: self.following_ids,
+    #   user_id: self.id) 高速化のためコメントアウト
+    following_ids='SELECT followed_id FROM relationships
+      WHERE follower_id = :user_id'
+    Micropost.where("user_id IN (#{following_ids}) OR user_id = :user_id",
+      user_id: self.id)
   end
   
+  def follow?(user)
+    following.include?(user)
+  end
+
+  def followed_by?(user)
+    followers.include?(user)
+  end
+
+  def follow(user)
+    #Relationship.create(follower_id:self.id,followed_id:user.id)
+    active_relationships.create(followed_id:user.id)
+  end
+
+
+  def unfollow(user)
+    active_relationships.find_by(followed_id:user.id).destroy
+  end
+
   private
     def downcase_email
       self.email=self.email.downcase

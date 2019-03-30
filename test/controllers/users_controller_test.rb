@@ -52,4 +52,14 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to users_path
   end
+
+  test "should redirect following if not login" do
+    get following_user_path(@user)
+    assert_redirected_to login_url
+  end
+
+  test "should redirect followed if not login" do
+    get followers_user_path(@user)
+    assert_redirected_to login_url
+  end
 end

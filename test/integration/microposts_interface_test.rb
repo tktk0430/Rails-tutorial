@@ -21,10 +21,10 @@ class MicropostsInterfaceTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     follow_redirect!
     microposts=@user.microposts.paginate(page:1)
-    microposts.each do |micropost|
-      assert_match micropost.content, response.body
-      assert_select 'a', text: 'delete'
-    end
+    #microposts.each do |micropost| #feedが絡むと@userの情報全てがhomeには乗らない
+    assert_match microposts.first.content, response.body
+    assert_select 'a', text: 'delete'
+    #end
     first_micropost=@user.microposts.paginate(page:1).first
     assert_difference 'Micropost.count', -1 do
       delete micropost_path(first_micropost)
